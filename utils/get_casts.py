@@ -1,14 +1,17 @@
 import os
 from google.cloud import bigquery
+from .generate_article import GPT_MODEL
 
 client = bigquery.Client()
 
+MAX_POSTS = 100 if "gpt-4" in GPT_MODEL else 50
 
-def get_casts(channel=None, date=None):
-    if not channel:
-        raise "No channel provided"
 
-    sql = generate_sql(channel=channel, date=date)
+def get_casts(parent_url=None, start_date=None, end_date=None):
+    if not parent_url:
+        raise "No params provided"
+
+    sql = generate_sql(parent_url=parent_url, start_date=start_date, end_date=end_date)
 
     """
     TODO: cache results of similar queries
@@ -21,8 +24,8 @@ def get_casts(channel=None, date=None):
     return [r for r in rows]
 
 
-def generate_sql(channel=None, date=None):
-    if not channel:
+def generate_sql(parent_url=None, start_date=None, end_date=None):
+    if not parent_url:
         raise "Missing params for generating SQL"
 
     """
@@ -56,9 +59,9 @@ WITH
     ON
       c.fid = p.fid
     WHERE
-      parent_cast_url = '{channel}'
+      parent_cast_url = '{parent_url}'
       AND JSON_VALUE(p.data, '$.username') IS NOT NULL
-      {f"AND EXTRACT(DATE from c.timestamp) = '{date}'" if date else ""}
+      {f"AND EXTRACT(DATE from c.timestamp) BETWEEN '{start_date}' and '{end_date}'" if start_date and end_date else ""}
   )
 SELECT
   *
@@ -96,5 +99,5 @@ UNION ALL (
     )
 ORDER BY
   reaction_count DESC
-LIMIT 50
+LIMIT {MAX_POSTS}
   """
