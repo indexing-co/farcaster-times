@@ -52,4 +52,4 @@ The content should be formatted as a string with markdown. Link to quoted posts 
         ],
     )
 
-    return response.choices[0].message.content
+    return json.loads(response.choices[0].message.content)

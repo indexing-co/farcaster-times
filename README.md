@@ -14,5 +14,6 @@ NOTE: This currently assumes you're already authenticated locally with Google Cl
 Finally, run:
 
 ```bash
-$ python app.py
+$ pip install -r requirements.txt
+$ flask run --debug
 ```

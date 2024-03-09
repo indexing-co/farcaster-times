@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="/static/styles.css" />
+    <title>The Farcaster Times</title>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <meta property="og:title" content="The Farcaster Times" />
+    <meta name="twitter:title" content="The Farcaster Times" />
+  </head>
+
+  <body>
+    <main>
+      <section>
+        <img src="/static/logo.png" width="100px" />
+        <h1>The Farcaster Times</h1>
+      </section>
+
+      <section>
+        <form>
+          <h2>View Article</h2>
+          <label>
+            Channel:
+            <input name="channel" value="{{channel}}" />
+          </label>
+          <br />
+          <label>
+            Start Date:
+            <input name="start_date" type="date" value="{{start_date}}" />
+          </label>
+          <br />
+          <label>
+            End Date:
+            <input name="end_date" type="date" value="{{end_date}}" />
+          </label>
+          <br />
+          <button type="submit">Go!</button>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>

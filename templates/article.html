@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="/static/styles.css" />
+    <title>{{headline}}</title>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <meta property="og:headline" content="{{headline}}" />
+    <meta name="twitter:headline" content="{{headline}}" />
+  </head>
+
+  <body>
+    <main>
+      <section>
+        <img src="/static/logo.png" width="100px" />
+        <h1>{{headline}}</h1>
+        <h3>{{subheading}}</h3>
+      </section>
+
+      <section>{{content|safe}}</section>
+    </main>
+  </body>
+</html>
