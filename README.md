@@ -1,4 +1,4 @@
-# the-farcaster-times
+# farcaster-times
 aka ROBO JOURNO
 
 ## Pages
