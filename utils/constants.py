@@ -1,3 +1,7 @@
+import os
+
+APP_URL = os.environ.get("APP_URL")
+
 # GPT_MODEL = "gpt-4-turbo-preview"
 GPT_MODEL = "gpt-3.5-turbo"
 

@@ -6,9 +6,10 @@ import os
 
 load_dotenv()
 
+from utils.constants import APP_URL
+from utils.content import get_clean_content, get_source
 from utils.generate_article import generate_article
 from utils.lookups import normalize_channel
-from utils.content import get_clean_content, get_source
 
 app = Flask(__name__)
 
@@ -33,7 +34,10 @@ def home():
 
     if not channel:
         return render_template(
-            "home.html", channel="/farcaster", selected_date=selected_date
+            "home.html",
+            app_url=APP_URL,
+            channel="/farcaster",
+            selected_date=selected_date,
         )
 
     channel, parent_url = normalize_channel(channel=channel)
@@ -63,6 +67,7 @@ def article_by_day(channel_or_username, year, month, day):
 
     return render_template(
         "article.html",
+        app_url=APP_URL,
         headline=article["headline"],
         subheading=article["subheading"],
         summary=article["summary"],
@@ -85,6 +90,7 @@ def article_by_month(channel_or_username, year, month):
 
     return render_template(
         "article.html",
+        app_url=APP_URL,
         headline=article["headline"],
         subheading=article["subheading"],
         summary=article["summary"],
