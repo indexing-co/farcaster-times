@@ -1,17 +1,24 @@
 body {
   background-color: white;
   font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 1.25rem;
   margin: 0;
   padding: 0;
+}
+
+header {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }
 
 main {
   display: flex;
   flex-direction: column;
   margin: auto;
-  max-width: 1024px;
-  min-width: 50vw;
-  padding: 3rem 1rem;
+  max-width: 600px;
+  padding: 1rem;
+  text-align: justify;
   width: fit-content;
 }
 
@@ -21,10 +28,25 @@ main > section {
 }
 
 main > section > h1 {
-  margin-top: 0;
+  margin: 0;
   font-size: xx-large;
+  text-align: left;
+}
+main h2 {
+  margin: 1rem 0 0.5rem;
+  font-size: x-large;
+  text-align: left;
+}
+main h3 {
+  margin: 1rem 0 0.5rem;
+  font-size: large;
+  text-align: left;
 }
 
 form label {
   display: block;
+}
+
+hr {
+  width: 100%;
 }

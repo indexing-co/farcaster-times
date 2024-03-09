@@ -1,7 +1,20 @@
 # the-farcaster-times
 aka ROBO JOURNO
 
-## Usage
+## Pages
+
+### /
+Crude home page that enables routing to other pages
+
+### /articles/:channel_or_username/:year/:month/:day
+View a particular day's article. Example:
+/articles/music/2023/03/08
+
+### /articles/:channel_or_username/:year/:month
+View a particular month's article. Example:
+/articles/farcascter/2023/02
+
+## Running Locally
 
 ```bash
 $ cp .env.sample .env

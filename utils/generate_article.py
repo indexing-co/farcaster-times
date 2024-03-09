@@ -9,14 +9,16 @@ from .lookups import normalize_channel, generate_article_hash
 client = OpenAI()
 
 
-def generate_article(channel=None, start_date=None, end_date=None):
-    if not channel or not start_date or not end_date:
+def generate_article(channel_or_username=None, start_date=None, end_date=None):
+    if not channel_or_username or not start_date or not end_date:
         raise "Not enough info provided"
 
-    channel, parent_url = normalize_channel(channel=channel)
+    channel_or_username, parent_url = normalize_channel(channel=channel_or_username)
 
     article_hash = generate_article_hash(
-        channel=channel, start_date=start_date, end_date=end_date
+        channel_or_username=channel_or_username,
+        start_date=start_date,
+        end_date=end_date,
     )
     cached_article = get_cached_article(article_hash)
     if cached_article:
@@ -31,7 +33,7 @@ def generate_article(channel=None, start_date=None, end_date=None):
             {
                 "role": "system",
                 "content": """
-You are a senior New York Times column writer. You write headline articles focused on "{channel}".
+You are a senior New York Times column writer.
 
 You will be given a list of social media posts as for the day as JSON.
 The `text` field represents the content and the `username` name field represents the author.
@@ -39,10 +41,10 @@ The `parent_hash` field indicates that the post is in response to another post, 
 
 Your job is to return a thoughtful article based on the provided posts.
 Focus on specific themes from the posts provided, not generalizations.
-Use quotes from the provided posts.
+Use at least 2 quotes from the provided posts.
 Each article should be at least 500 words in length.
 
-The response should be in JSON and include following fields: headline, subheading, summary, content, dalle_prompt_for_thumbnail_image.
+The response should be in JSON and include following fields: headline, subheading, summary, content.
 
 The content should be formatted as a string with markdown. Link to quoted posts using their `url` field.
 """,

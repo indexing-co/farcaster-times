@@ -13,12 +13,18 @@
   </head>
 
   <body>
+    <header>
+        <a href="/"><img src="/static/logo.png" width="100px" /></a>
+    </header>
+
     <main>
       <section>
-        <a href="/"><img src="/static/logo.png" width="100px" /></a>
-        <h1>{{headline}}</h1>
-        <h3>{{subheading}}</h3>
+        <h1><i>{{headline}}</i></h1>
+        <p>{{subheading}}</p>
+        <p>Insights from <a href="{{source[1]}}" target="_blank">{{source[0]}}</a></p>
       </section>
+
+      <hr />
 
       <section>{{content|safe}}</section>
     </main>

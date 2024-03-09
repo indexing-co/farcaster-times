@@ -27,9 +27,9 @@ def normalize_channel(channel=""):
     return channel, parent_url
 
 
-def generate_article_hash(channel=None, start_date=None, end_date=None):
+def generate_article_hash(channel_or_username=None, start_date=None, end_date=None):
     m = hashlib.sha256()
-    m.update(channel.encode("utf-8"))
+    m.update(channel_or_username.encode("utf-8"))
     m.update(start_date.encode("utf-8"))
     m.update(end_date.encode("utf-8"))
 

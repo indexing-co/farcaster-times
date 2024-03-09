@@ -6,7 +6,7 @@
 
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="shortcut icon" type="image/jpg" href="/static/logo.png"/>
+    <link rel="shortcut icon" type="image/jpg" href="/static/logo.png" />
 
     <meta property="og:title" content="The Farcaster Times" />
     <meta name="twitter:title" content="The Farcaster Times" />
@@ -14,8 +14,11 @@
 
   <body>
     <main>
+      <header>
+        <a href="/"><img src="/static/logo.png" width="100px" /></a>
+      </header>
+
       <section>
-        <img src="/static/logo.png" width="100px" />
         <h1>The Farcaster Times</h1>
       </section>
 
@@ -28,13 +31,8 @@
           </label>
           <br />
           <label>
-            Start Date:
-            <input name="start_date" type="date" value="{{start_date}}" />
-          </label>
-          <br />
-          <label>
-            End Date:
-            <input name="end_date" type="date" value="{{end_date}}" />
+            Date:
+            <input name="selected_date" type="date" value="{{selected_date}}" />
           </label>
           <br />
           <button type="submit">Go!</button>
