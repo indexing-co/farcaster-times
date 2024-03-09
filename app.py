@@ -2,15 +2,24 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for
+import os
 
 load_dotenv()
 
-from utils.get_casts import get_casts
 from utils.generate_article import generate_article
 from utils.lookups import normalize_channel
 from utils.content import get_clean_content, get_source
 
 app = Flask(__name__)
+
+
+def create_app():
+    app.run(host="0.0.0.0", port=os.environ.get("PORT", 8080))
+
+
+@app.get("/_ah/health")
+def gcp_health():
+    return "ok"
 
 
 @app.route("/")
@@ -59,7 +68,7 @@ def article_by_day(channel_or_username, year, month, day):
         summary=article["summary"],
         content=get_clean_content(article),
         channel_or_username=channel_or_username,
-        source=get_source(channel_or_username),
+        source=get_source(channel_or_username, year, month, day),
     )
 
 
@@ -81,5 +90,5 @@ def article_by_month(channel_or_username, year, month):
         summary=article["summary"],
         content=get_clean_content(article),
         channel_or_username=channel_or_username,
-        source=get_source(channel_or_username),
+        source=get_source(channel_or_username, year, month, 0),
     )
