@@ -37,11 +37,9 @@ def home():
 
 @app.route("/article/<string:channel>/<string:start_date>/<string:end_date>")
 def article(channel, start_date, end_date):
-    channel, parent_url = normalize_channel(channel=channel)
-
-    casts = get_casts(parent_url=parent_url, start_date=start_date, end_date=end_date)
-    article = generate_article(casts=casts, channel=channel)
-    print(article)
+    article = generate_article(
+        channel=channel, start_date=start_date, end_date=end_date
+    )
 
     return render_template(
         "article.html",

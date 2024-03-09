@@ -1,10 +1,9 @@
 import os
 from google.cloud import bigquery
-from .generate_article import GPT_MODEL
+
+from .constants import MAX_POSTS
 
 client = bigquery.Client()
-
-MAX_POSTS = 100 if "gpt-4" in GPT_MODEL else 50
 
 
 def get_casts(parent_url=None, start_date=None, end_date=None):

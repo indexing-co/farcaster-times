@@ -1,15 +1,28 @@
 import json
 from openai import OpenAI
 
+from .cache import get_cached_article, store_cached_article
+from .constants import GPT_MODEL
+from .get_casts import get_casts
+from .lookups import normalize_channel, generate_article_hash
+
 client = OpenAI()
 
-# GPT_MODEL = "gpt-4-turbo-preview"
-GPT_MODEL = "gpt-3.5-turbo"
 
-
-def generate_article(casts=[], channel=None):
-    if not casts or not channel:
+def generate_article(channel=None, start_date=None, end_date=None):
+    if not channel or not start_date or not end_date:
         raise "Not enough info provided"
+
+    channel, parent_url = normalize_channel(channel=channel)
+
+    article_hash = generate_article_hash(
+        channel=channel, start_date=start_date, end_date=end_date
+    )
+    cached_article = get_cached_article(article_hash)
+    if cached_article:
+        return cached_article
+
+    casts = get_casts(parent_url=parent_url, start_date=start_date, end_date=end_date)
 
     response = client.chat.completions.create(
         model=GPT_MODEL,
@@ -52,4 +65,8 @@ The content should be formatted as a string with markdown. Link to quoted posts 
         ],
     )
 
-    return json.loads(response.choices[0].message.content)
+    article = json.loads(response.choices[0].message.content)
+
+    store_cached_article(hash=article_hash, article=article)
+
+    return article
