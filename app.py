@@ -42,7 +42,6 @@ def home():
     for username in top_usernames:
         username_val = username.get('username')
         if username_val:
-            print(f"Generating article for {username_val} from {start_date} to {end_date}, {username}")
             article = generate_article(
                 channel_or_username=username_val,
                 start_date=start_date.strftime("%Y-%m-%d"),
