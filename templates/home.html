@@ -18,29 +18,34 @@
   <body>
     <main>
       <header>
-        <a href="/"><img src="/static/logo.png" width="100px" /></a>
-      </header>
-
-      <section>
+        <a href="/"><img src="/static/logo.png" width="100px" alt="The Farcaster Times Logo"/></a>
         <h1>The Farcaster Times</h1>
-      </section>
+        <div class="article-search-form">
+            <form>
+                <label for="channel">Channel/Username:</label>
+                <input id="channel" name="channel" value="{{channel}}" />
 
-      <section>
-        <form>
-          <h2>View Article</h2>
-          <label>
-            Channel/Username:
-            <input name="channel" value="{{channel}}" />
-          </label>
-          <br />
-          <label>
-            Date:
-            <input name="selected_date" type="date" value="{{selected_date}}" />
-          </label>
-          <br />
-          <button type="submit">Go!</button>
-        </form>
-      </section>
+                <label for="selected_date">Date:</label>
+                <input id="selected_date" name="selected_date" type="date" value="{{selected_date}}" />
+
+                <button type="submit">Go!</button>
+            </form>
+        </div>
+      </header>
+      {% if articles %}
+        <section class="other-articles">
+          {% for article in articles %}
+            <article>
+              <h2>{{ article.headline }}</h2>
+              <p>Insights from <a href="{{ article.source[1] }}" target="_blank">{{ article.source[0] }}</a> - {{ article.source[2] }}</p>
+              <div class="article-content">{{ article.content | safe }}</div>
+              <a href="{{ article.url }}">Read More</a>
+            </article>
+          {% endfor %}
+        </section>
+      {% else %}
+        <p>No articles found.</p>
+      {% endif %}
     </main>
   </body>
 </html>

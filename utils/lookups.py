@@ -40,3 +40,10 @@ def generate_article_hash(channel_or_username=None, start_date=None, end_date=No
     m.update(end_date.encode("utf-8"))
 
     return m.hexdigest()
+
+def truncate_content(content, word_limit=50):
+    words = content.split(' ')
+    if len(words) <= word_limit:
+        return content
+    truncated = ' '.join(words[:word_limit])
+    return f"{truncated}..."

@@ -4,12 +4,14 @@ from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for
 import os
 
+from utils.get_casts import get_top_casts_by_username
+
 load_dotenv()
 
 from utils.constants import APP_URL
 from utils.content import get_clean_content, get_source
 from utils.generate_article import generate_article
-from utils.lookups import normalize_channel
+from utils.lookups import normalize_channel, truncate_content
 
 app = Flask(__name__)
 
@@ -22,7 +24,6 @@ def create_app():
 def gcp_health():
     return "ok"
 
-
 @app.route("/")
 def home():
     channel = request.args.get("channel")
@@ -32,12 +33,43 @@ def home():
         today = datetime.today()
         selected_date = (today - timedelta(days=1)).strftime("%Y-%m-%d")
 
+    today = datetime.today()
+    start_date = today - timedelta(days=1)
+    end_date = start_date + timedelta(days=1)
+
+    top_usernames = get_top_casts_by_username(start_date=start_date.strftime("%Y-%m-%d"), end_date=end_date.strftime("%Y-%m-%d"))
+    articles = []
+    for username in top_usernames:
+        username_val = username.get('username')
+        if username_val:
+            print(f"Generating article for {username_val} from {start_date} to {end_date}, {username}")
+            article = generate_article(
+                channel_or_username=username_val,
+                start_date=start_date.strftime("%Y-%m-%d"),
+                end_date=end_date.strftime("%Y-%m-%d"),
+                type="username",
+            )
+            truncated_content = truncate_content(get_clean_content(article) if article.get("content") else "No article found for this date range.", 50)
+            article_data = {
+                "headline": article.get("headline", "No article found"),
+                "subheading": article.get("subheading", ""),
+                "summary": article.get("summary", ""),
+                "content": truncated_content,
+                "channel_or_username": username_val,
+                "source": get_source(username_val, start_date.year, start_date.month, start_date.day, "username"),
+                "url": f"/articles/@{username_val}/{start_date.year}/{start_date.month}/{start_date.day}",
+            }
+            articles.append(article_data)
+        else:
+            print(f"Skipping entry with no username: {username}")
+
     if not channel:
         return render_template(
             "home.html",
             app_url=APP_URL,
             channel="/farcaster",
             selected_date=selected_date,
+            articles=articles,
         )
 
     normalized_channel, _, type = normalize_channel(channel=channel)
