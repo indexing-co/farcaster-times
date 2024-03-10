@@ -53,48 +53,78 @@ def home():
         )
     )
 
-
 @app.route("/articles/<string:channel_or_username>/<int:year>/<int:month>/<int:day>")
 def article_by_day(channel_or_username, year, month, day):
-    start_date = datetime(year, month, day)
-    end_date = start_date + timedelta(days=1)
+    try:
+        start_date = datetime(year, month, day)
+        end_date = start_date + timedelta(days=1)
 
-    article = generate_article(
-        channel_or_username=channel_or_username,
-        start_date=start_date.strftime("%Y-%m-%d"),
-        end_date=end_date.strftime("%Y-%m-%d"),
-    )
+        article = generate_article(
+            channel_or_username=channel_or_username,
+            start_date=start_date.strftime("%Y-%m-%d"),
+            end_date=end_date.strftime("%Y-%m-%d"),
+        )
+        
+        return render_template(
+            "article.html",
+            app_url=APP_URL,
+            headline=article.get("headline", "No article found"),
+            subheading=article.get("subheading", ""),
+            summary=article.get("summary", ""),
+            content=get_clean_content(article) if article.get("content") else "No article found for this date range.",
+            channel_or_username=channel_or_username,
+            source=get_source(channel_or_username, year, month, day),
+            error=False  # Indicates successful article retrieval
+        )
 
-    return render_template(
-        "article.html",
-        app_url=APP_URL,
-        headline=article["headline"],
-        subheading=article["subheading"],
-        summary=article["summary"],
-        content=get_clean_content(article),
-        channel_or_username=channel_or_username,
-        source=get_source(channel_or_username, year, month, day),
-    )
-
+    except Exception as e:
+        print(f"Error generating article: {e}")
+        return render_template(
+            "article.html",
+            app_url=APP_URL,
+            headline="No article found",
+            subheading="",
+            summary="",
+            content="An error occurred while trying to generate the article. Please try again later.",
+            channel_or_username=channel_or_username,
+            source=["", "#", ""],
+            error=True  # Indicates an error occurred
+        )
 
 @app.route("/articles/<string:channel_or_username>/<int:year>/<int:month>")
 def article_by_month(channel_or_username, year, month):
-    start_date = datetime(year, month, 1)
-    end_date = start_date + relativedelta(months=1) - timedelta(days=1)
+    try:
+        start_date = datetime(year, month, 1)
+        end_date = start_date + relativedelta(months=1) - timedelta(days=1)
 
-    article = generate_article(
-        channel_or_username=channel_or_username,
-        start_date=start_date.strftime("%Y-%m-%d"),
-        end_date=end_date.strftime("%Y-%m-%d"),
-    )
+        article = generate_article(
+            channel_or_username=channel_or_username,
+            start_date=start_date.strftime("%Y-%m-%d"),
+            end_date=end_date.strftime("%Y-%m-%d"),
+        )
 
-    return render_template(
-        "article.html",
-        app_url=APP_URL,
-        headline=article["headline"],
-        subheading=article["subheading"],
-        summary=article["summary"],
-        content=get_clean_content(article),
-        channel_or_username=channel_or_username,
-        source=get_source(channel_or_username, year, month, 0),
-    )
+        return render_template(
+            "article.html",
+            app_url=APP_URL,
+            headline=article.get("headline", "No article found"),
+            subheading=article.get("subheading", ""),
+            summary=article.get("summary", ""),
+            content=get_clean_content(article) if article.get("content") else "No article found for this month.",
+            channel_or_username=channel_or_username,
+            source=get_source(channel_or_username, year, month, 0),
+            error=False  # Indicates successful article retrieval
+        )
+
+    except Exception as e:
+        print(f"Error generating article: {e}")
+        return render_template(
+            "article.html",
+            app_url=APP_URL,
+            headline="No article found",
+            subheading="",
+            summary="",
+            content="An error occurred while trying to generate the article. Please try again later.",
+            channel_or_username=channel_or_username,
+            source=["", "#", ""],  # Adjust as needed for month-based source
+            error=True  # Indicates an error occurred
+        )

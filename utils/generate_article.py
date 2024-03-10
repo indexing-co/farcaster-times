@@ -3,17 +3,16 @@ from openai import OpenAI
 
 from .cache import get_cached_article, store_cached_article
 from .constants import GPT_MODEL
-from .get_casts import get_casts
+from .get_casts import get_casts_by_channel, get_casts_by_username
 from .lookups import normalize_channel, generate_article_hash
 
 client = OpenAI()
 
-
 def generate_article(channel_or_username=None, start_date=None, end_date=None):
     if not channel_or_username or not start_date or not end_date:
-        raise "Not enough info provided"
+        raise ValueError("Not enough info provided")
 
-    channel_or_username, parent_url = normalize_channel(channel=channel_or_username)
+    identifier, parent_url = normalize_channel(channel=channel_or_username)
 
     article_hash = generate_article_hash(
         channel_or_username=channel_or_username,
@@ -24,7 +23,15 @@ def generate_article(channel_or_username=None, start_date=None, end_date=None):
     if cached_article:
         return cached_article
 
-    casts = get_casts(parent_url=parent_url, start_date=start_date, end_date=end_date)
+    # Decide whether to fetch casts by channel or by username based on the presence of parent_url
+    if parent_url:
+        casts = get_casts_by_channel(parent_url=parent_url, start_date=start_date, end_date=end_date)
+    
+    if not casts or len(casts) == 0:
+        casts = get_casts_by_username(username=identifier, start_date=start_date, end_date=end_date)
+
+    if not casts or len(casts) == 0:
+        raise ValueError("No casts found")
 
     response = client.chat.completions.create(
         model=GPT_MODEL,
