@@ -2,14 +2,18 @@ import os
 from google.cloud import bigquery
 
 from .constants import MAX_POSTS
+from .cache import get_cached_daily_usernames, store_cached_daily_usernames
 
 client = bigquery.Client()
+
 
 def get_casts_by_channel(parent_url=None, start_date=None, end_date=None):
     if not parent_url:
         raise "No params provided"
 
-    sql = generate_channel_casts_sql(parent_url=parent_url, start_date=start_date, end_date=end_date)
+    sql = generate_channel_casts_sql(
+        parent_url=parent_url, start_date=start_date, end_date=end_date
+    )
 
     """
     TODO: cache results of similar queries
@@ -20,6 +24,7 @@ def get_casts_by_channel(parent_url=None, start_date=None, end_date=None):
     rows = query.result()
 
     return [r for r in rows]
+
 
 def generate_channel_casts_sql(parent_url=None, start_date=None, end_date=None):
     if not parent_url:
@@ -99,16 +104,20 @@ ORDER BY
 LIMIT {MAX_POSTS}
   """
 
+
 def get_casts_by_username(username=None, start_date=None, end_date=None):
     if not username:
         raise ValueError("Username is required")
 
-    sql = generate_username_casts_sql(username=username, start_date=start_date, end_date=end_date)
+    sql = generate_username_casts_sql(
+        username=username, start_date=start_date, end_date=end_date
+    )
 
     query = client.query(sql)
     rows = query.result()
 
     return [r for r in rows]
+
 
 def generate_username_casts_sql(username, start_date=None, end_date=None):
     return f"""
@@ -150,6 +159,7 @@ ORDER BY
     reaction_count DESC, timestamp DESC
 LIMIT {MAX_POSTS}
 """
+
 
 def get_top_casts_by_channel(start_date=None, end_date=None):
     sql = generate_top_casts_by_channel_sql(start_date=start_date, end_date=end_date)
@@ -210,13 +220,22 @@ SELECT * FROM aggregated_by_channel;
 
     return sql
 
+
 def get_top_casts_by_username(start_date=None, end_date=None):
+    cached = get_cached_daily_usernames(start_date)
+    if cached:
+        return cached
+
     sql = generate_top_casts_by_username_sql(start_date=start_date, end_date=end_date)
 
     query = client.query(sql)
     rows = query.result()
 
-    return [r for r in rows]
+    usernames = [r.get("username") for r in rows if r.get("username") is not None]
+    store_cached_daily_usernames(start_date, usernames)
+
+    return usernames
+
 
 def generate_top_casts_by_username_sql(start_date=None, end_date=None):
     if not start_date or not end_date:

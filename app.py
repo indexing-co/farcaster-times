@@ -24,6 +24,7 @@ def create_app():
 def gcp_health():
     return "ok"
 
+
 @app.route("/")
 def home():
     channel = request.args.get("channel")
@@ -37,30 +38,42 @@ def home():
     start_date = today - timedelta(days=1)
     end_date = start_date + timedelta(days=1)
 
-    top_usernames = get_top_casts_by_username(start_date=start_date.strftime("%Y-%m-%d"), end_date=end_date.strftime("%Y-%m-%d"))
+    top_usernames = get_top_casts_by_username(
+        start_date=start_date.strftime("%Y-%m-%d"),
+        end_date=end_date.strftime("%Y-%m-%d"),
+    )
     articles = []
     for username in top_usernames:
-        username_val = username.get('username')
-        if username_val:
-            article = generate_article(
-                channel_or_username=username_val,
-                start_date=start_date.strftime("%Y-%m-%d"),
-                end_date=end_date.strftime("%Y-%m-%d"),
-                type="username",
-            )
-            truncated_content = truncate_content(get_clean_content(article) if article.get("content") else "No article found for this date range.", 50)
-            article_data = {
-                "headline": article.get("headline", "No article found"),
-                "subheading": article.get("subheading", ""),
-                "summary": article.get("summary", ""),
-                "content": truncated_content,
-                "channel_or_username": username_val,
-                "source": get_source(username_val, start_date.year, start_date.month, start_date.day, "username"),
-                "url": f"/articles/@{username_val}/{start_date.year}/{start_date.month}/{start_date.day}",
-            }
-            articles.append(article_data)
-        else:
-            print(f"Skipping entry with no username: {username}")
+        article = generate_article(
+            channel_or_username=username,
+            start_date=start_date.strftime("%Y-%m-%d"),
+            end_date=end_date.strftime("%Y-%m-%d"),
+            type="username",
+        )
+        truncated_content = truncate_content(
+            (
+                get_clean_content(article)
+                if article.get("content")
+                else "No article found for this date range."
+            ),
+            50,
+        )
+        article_data = {
+            "headline": article.get("headline", "No article found"),
+            "subheading": article.get("subheading", ""),
+            "summary": article.get("summary", ""),
+            "content": truncated_content,
+            "channel_or_username": username,
+            "source": get_source(
+                username,
+                start_date.year,
+                start_date.month,
+                start_date.day,
+                "username",
+            ),
+            "url": f"/articles/@{username}/{start_date.year}/{start_date.month}/{start_date.day}",
+        }
+        articles.append(article_data)
 
     if not channel:
         return render_template(
@@ -95,6 +108,7 @@ def home():
         )
     )
 
+
 @app.route("/articles/<string:channel_or_username>/<int:year>/<int:month>/<int:day>")
 def article_by_day(channel_or_username, year, month, day):
     try:
@@ -115,10 +129,14 @@ def article_by_day(channel_or_username, year, month, day):
             headline=article.get("headline", "No article found"),
             subheading=article.get("subheading", ""),
             summary=article.get("summary", ""),
-            content=get_clean_content(article) if article.get("content") else "No article found for this date range.",
+            content=(
+                get_clean_content(article)
+                if article.get("content")
+                else "No article found for this date range."
+            ),
             channel_or_username=channel,
             source=get_source(channel, year, month, day, type),
-            error=False  # Indicates successful article retrieval
+            error=False,  # Indicates successful article retrieval
         )
 
     except Exception as e:
@@ -132,8 +150,9 @@ def article_by_day(channel_or_username, year, month, day):
             content="An error occurred while trying to generate the article. Please try again later.",
             channel_or_username=channel,
             source=["", "#", ""],
-            error=True  # Indicates an error occurred
+            error=True,  # Indicates an error occurred
         )
+
 
 @app.route("/articles/<string:channel_or_username>/<int:year>/<int:month>")
 def article_by_month(channel_or_username, year, month):
@@ -155,10 +174,14 @@ def article_by_month(channel_or_username, year, month):
             headline=article.get("headline", "No article found"),
             subheading=article.get("subheading", ""),
             summary=article.get("summary", ""),
-            content=get_clean_content(article) if article.get("content") else "No article found for this month.",
+            content=(
+                get_clean_content(article)
+                if article.get("content")
+                else "No article found for this month."
+            ),
             channel_or_username=channel,
             source=get_source(channel, year, month, 0, type),
-            error=False  # Indicates successful article retrieval
+            error=False,  # Indicates successful article retrieval
         )
 
     except Exception as e:
@@ -172,5 +195,5 @@ def article_by_month(channel_or_username, year, month):
             content="An error occurred while trying to generate the article. Please try again later.",
             channel_or_username=channel,
             source=["", "#", ""],  # Adjust as needed for month-based source
-            error=True  # Indicates an error occurred
+            error=True,  # Indicates an error occurred
         )

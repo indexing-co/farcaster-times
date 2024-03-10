@@ -8,7 +8,10 @@ from .lookups import normalize_channel, generate_article_hash
 
 client = OpenAI()
 
-def generate_article(channel_or_username=None, start_date=None, end_date=None, type=None):
+
+def generate_article(
+    channel_or_username=None, start_date=None, end_date=None, type=None
+):
     if not channel_or_username or not start_date or not end_date or not type:
         raise ValueError("Not enough info provided")
 
@@ -22,13 +25,19 @@ def generate_article(channel_or_username=None, start_date=None, end_date=None, t
     cached_article = get_cached_article(article_hash)
     if cached_article:
         return cached_article
+    else:
+        print("generating article for", channel_or_username, start_date, end_date)
 
     # Decide whether to fetch casts by channel or by username based on the presence of parent_url
     if type == "channel":
-        casts = get_casts_by_channel(parent_url=parent_url, start_date=start_date, end_date=end_date)
-    
+        casts = get_casts_by_channel(
+            parent_url=parent_url, start_date=start_date, end_date=end_date
+        )
+
     elif type == "username":
-        casts = get_casts_by_username(username=identifier, start_date=start_date, end_date=end_date)
+        casts = get_casts_by_username(
+            username=identifier, start_date=start_date, end_date=end_date
+        )
 
     if not casts or len(casts) == 0:
         raise ValueError("No casts found")
