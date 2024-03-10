@@ -40,13 +40,24 @@ def home():
             selected_date=selected_date,
         )
 
-    channel, parent_url = normalize_channel(channel=channel)
+    normalized_channel, _, type = normalize_channel(channel=channel)
     year, month, day = selected_date.split("-")
+
+    if type == "username":
+        return redirect(
+            url_for(
+                "article_by_day",
+                channel_or_username=channel,
+                year=year,
+                month=month,
+                day=day,
+            )
+        )
 
     return redirect(
         url_for(
             "article_by_day",
-            channel_or_username=channel,
+            channel_or_username=normalized_channel,
             year=year,
             month=month,
             day=day,
@@ -58,13 +69,15 @@ def article_by_day(channel_or_username, year, month, day):
     try:
         start_date = datetime(year, month, day)
         end_date = start_date + timedelta(days=1)
+        channel, _, type = normalize_channel(channel=channel_or_username)
 
         article = generate_article(
-            channel_or_username=channel_or_username,
+            channel_or_username=channel,
             start_date=start_date.strftime("%Y-%m-%d"),
             end_date=end_date.strftime("%Y-%m-%d"),
+            type=type,
         )
-        
+
         return render_template(
             "article.html",
             app_url=APP_URL,
@@ -72,8 +85,8 @@ def article_by_day(channel_or_username, year, month, day):
             subheading=article.get("subheading", ""),
             summary=article.get("summary", ""),
             content=get_clean_content(article) if article.get("content") else "No article found for this date range.",
-            channel_or_username=channel_or_username,
-            source=get_source(channel_or_username, year, month, day),
+            channel_or_username=channel,
+            source=get_source(channel, year, month, day, type),
             error=False  # Indicates successful article retrieval
         )
 
@@ -86,7 +99,7 @@ def article_by_day(channel_or_username, year, month, day):
             subheading="",
             summary="",
             content="An error occurred while trying to generate the article. Please try again later.",
-            channel_or_username=channel_or_username,
+            channel_or_username=channel,
             source=["", "#", ""],
             error=True  # Indicates an error occurred
         )
@@ -96,11 +109,13 @@ def article_by_month(channel_or_username, year, month):
     try:
         start_date = datetime(year, month, 1)
         end_date = start_date + relativedelta(months=1) - timedelta(days=1)
+        channel, _, type = normalize_channel(channel=channel_or_username)
 
         article = generate_article(
-            channel_or_username=channel_or_username,
+            channel_or_username=channel,
             start_date=start_date.strftime("%Y-%m-%d"),
             end_date=end_date.strftime("%Y-%m-%d"),
+            type=type,
         )
 
         return render_template(
@@ -110,8 +125,8 @@ def article_by_month(channel_or_username, year, month):
             subheading=article.get("subheading", ""),
             summary=article.get("summary", ""),
             content=get_clean_content(article) if article.get("content") else "No article found for this month.",
-            channel_or_username=channel_or_username,
-            source=get_source(channel_or_username, year, month, 0),
+            channel_or_username=channel,
+            source=get_source(channel, year, month, 0, type),
             error=False  # Indicates successful article retrieval
         )
 
@@ -124,7 +139,7 @@ def article_by_month(channel_or_username, year, month):
             subheading="",
             summary="",
             content="An error occurred while trying to generate the article. Please try again later.",
-            channel_or_username=channel_or_username,
+            channel_or_username=channel,
             source=["", "#", ""],  # Adjust as needed for month-based source
             error=True  # Indicates an error occurred
         )
