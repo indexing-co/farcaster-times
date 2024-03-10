@@ -150,3 +150,103 @@ ORDER BY
     reaction_count DESC, timestamp DESC
 LIMIT {MAX_POSTS}
 """
+
+def get_top_casts_by_channel(start_date=None, end_date=None):
+    sql = generate_top_casts_by_channel_sql(start_date=start_date, end_date=end_date)
+
+    query = client.query(sql)
+    rows = query.result()
+
+    return [r for r in rows]
+
+
+def generate_top_casts_by_channel_sql(start_date=None, end_date=None):
+    if not start_date or not end_date:
+        raise ValueError("Start date and end date must be provided")
+
+    sql = f"""
+WITH
+  casts AS (
+    SELECT
+      c.timestamp,
+      c.hash,
+      JSON_VALUE(p.data, '$.username') AS username,
+      c.text,
+      c.parent_cast_url,
+      (SELECT COUNT(*) FROM `glossy-odyssey-366820.farcaster.reactions` WHERE target_cast_hash = c.hash) AS reaction_count
+    FROM
+      `glossy-odyssey-366820.farcaster.casts` c
+    JOIN `glossy-odyssey-366820.farcaster.profiles` p ON c.fid = p.fid
+    WHERE 
+      c.timestamp BETWEEN '{start_date}' AND '{end_date}'
+),
+channel_ids AS (
+    SELECT
+        timestamp,
+        hash,
+        username,
+        text,
+        parent_cast_url,
+        reaction_count,
+        CASE
+            WHEN parent_cast_url LIKE 'https://%' THEN REGEXP_EXTRACT(parent_cast_url, 'https://[^/]+/([^/]+)$')
+            ELSE parent_cast_url
+        END AS channel_id
+    FROM casts
+),
+aggregated_by_channel AS (
+    SELECT
+        channel_id,
+        COUNT(*) AS total_casts,
+        SUM(reaction_count) AS total_reactions
+    FROM channel_ids
+    WHERE channel_id IS NOT NULL
+    GROUP BY channel_id
+    ORDER BY total_reactions DESC
+    LIMIT 10
+)
+SELECT * FROM aggregated_by_channel;
+"""
+
+    return sql
+
+def get_top_casts_by_username(start_date=None, end_date=None):
+    sql = generate_top_casts_by_username_sql(start_date=start_date, end_date=end_date)
+
+    query = client.query(sql)
+    rows = query.result()
+
+    return [r for r in rows]
+
+def generate_top_casts_by_username_sql(start_date=None, end_date=None):
+    if not start_date or not end_date:
+        raise ValueError("Start date and end date must be provided")
+
+    sql = f"""
+WITH
+  profile_casts AS (
+    SELECT
+      c.timestamp,
+      c.hash,
+      JSON_VALUE(p.data, '$.username') AS username,
+      c.text,
+      (SELECT COUNT(*) FROM `glossy-odyssey-366820.farcaster.reactions` WHERE target_cast_hash = c.hash) AS reaction_count
+    FROM
+      `glossy-odyssey-366820.farcaster.casts` c
+    JOIN `glossy-odyssey-366820.farcaster.profiles` p ON c.fid = p.fid
+    WHERE 
+      c.timestamp BETWEEN '{start_date}' AND '{end_date}'
+),
+aggregated_by_profile AS (
+    SELECT
+        username,
+        COUNT(*) AS total_casts,
+        SUM(reaction_count) AS total_reactions
+    FROM profile_casts
+    GROUP BY username
+    ORDER BY total_reactions DESC, total_casts DESC
+    LIMIT 10
+)
+SELECT * FROM aggregated_by_profile;
+"""
+    return sql

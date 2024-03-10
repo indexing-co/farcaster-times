@@ -13,11 +13,22 @@
   </head>
 
   <body>
-    <header>
-        <a href="/"><img src="/static/logo.png" width="100px" /></a>
-    </header>
-
     <main>
+      <header>
+        <a href="/"><img src="/static/logo.png" width="100px" alt="The Farcaster Times Logo"/></a>
+        <h1>The Farcaster Times</h1>
+        <div class="article-search-form">
+            <form>
+                <label for="channel">Channel/Username:</label>
+                <input id="channel" name="channel" value="{{channel}}" />
+  
+                <label for="selected_date">Date:</label>
+                <input id="selected_date" name="selected_date" type="date" value="{{selected_date}}" />
+  
+                <button type="submit">Go!</button>
+            </form>
+        </div>
+      </header>
       <section>
         <h1><i>{{headline}}</i></h1>
         {% if not error %}
