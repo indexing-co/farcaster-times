@@ -11,21 +11,27 @@ for c in legacy_channels:
 
 def normalize_channel(channel=""):
     if not channel:
-        raise "No channel provided"
+        raise ValueError("No channel provided")
 
-    if "/" in channel:
+    # Check if input is a username (starts with '@')
+    if "@" in channel:
+        username = channel.strip("@")
+        return username, None, 'username'  # No parent_url needed for usernames
+
+    # Handling channels, with backward compatibility for legacy channels
+    elif "/" in channel:
         channel = channel.split("/")[-1]
 
     channel = channel.lower()
 
+    # Fetch parent_url from legacy channels or construct it for newer channels
     parent_url = (
         legacy_channel_map[channel]
         if channel in legacy_channel_map
-        else f"https://warpcast.com/~/{channel}"
+        else f"https://warpcast.com/~/channel/{channel}"
     )
 
-    return channel, parent_url
-
+    return channel, parent_url, 'channel'
 
 def generate_article_hash(channel_or_username=None, start_date=None, end_date=None):
     m = hashlib.sha256()

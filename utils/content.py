@@ -14,14 +14,14 @@ def get_clean_content(article):
     return content
 
 
-def get_source(channel_or_username, year, month, day):
+def get_source(channel_or_username, year, month, day, type):
     date = datetime(year, month, day or 1)
     time_frame = date.strftime("%B %Y") if not day else date.strftime("%B %d, %Y")
 
-    if channel_or_username[0] == "@":
+    if type == "username":
         return (
             channel_or_username,
-            f"https://warpcast.com/{channel_or_username[1:]}",
+            f"https://warpcast.com/{channel_or_username}",
             time_frame,
         )
 

@@ -5,12 +5,11 @@ from .constants import MAX_POSTS
 
 client = bigquery.Client()
 
-
-def get_casts(parent_url=None, start_date=None, end_date=None):
+def get_casts_by_channel(parent_url=None, start_date=None, end_date=None):
     if not parent_url:
         raise "No params provided"
 
-    sql = generate_sql(parent_url=parent_url, start_date=start_date, end_date=end_date)
+    sql = generate_channel_casts_sql(parent_url=parent_url, start_date=start_date, end_date=end_date)
 
     """
     TODO: cache results of similar queries
@@ -22,8 +21,7 @@ def get_casts(parent_url=None, start_date=None, end_date=None):
 
     return [r for r in rows]
 
-
-def generate_sql(parent_url=None, start_date=None, end_date=None):
+def generate_channel_casts_sql(parent_url=None, start_date=None, end_date=None):
     if not parent_url:
         raise "Missing params for generating SQL"
 
@@ -100,3 +98,55 @@ ORDER BY
   reaction_count DESC
 LIMIT {MAX_POSTS}
   """
+
+def get_casts_by_username(username=None, start_date=None, end_date=None):
+    if not username:
+        raise ValueError("Username is required")
+
+    sql = generate_username_casts_sql(username=username, start_date=start_date, end_date=end_date)
+
+    query = client.query(sql)
+    rows = query.result()
+
+    return [r for r in rows]
+
+def generate_username_casts_sql(username, start_date=None, end_date=None):
+    return f"""
+WITH user_fid AS (
+    SELECT
+        fid
+    FROM
+        `glossy-odyssey-366820.farcaster.profiles`
+    WHERE
+        JSON_VALUE(data, '$.username') = '{username}'
+),
+user_casts AS (
+    SELECT
+        c.timestamp,
+        c.hash,
+        '{username}' AS username,
+        CONCAT('https://warpcast.com/', '{username}', "/", SUBSTR(c.hash, 0, 10)) AS url,
+        c.parent_cast_hash,
+        c.text,
+        (
+            SELECT
+                COUNT(*)
+            FROM
+                `glossy-odyssey-366820.farcaster.reactions`
+            WHERE
+                target_cast_hash = c.hash
+        ) AS reaction_count
+    FROM
+        `glossy-odyssey-366820.farcaster.casts` c
+    JOIN
+        user_fid uf ON c.fid = uf.fid
+    WHERE {f"EXTRACT(DATE from c.timestamp) BETWEEN '{start_date}' and '{end_date}'" if start_date and end_date else ""}
+)
+SELECT
+    *
+FROM
+    user_casts
+ORDER BY
+    reaction_count DESC, timestamp DESC
+LIMIT {MAX_POSTS}
+"""
