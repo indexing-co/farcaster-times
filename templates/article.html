@@ -10,13 +10,31 @@
 
     <meta property="og:headline" content="{{headline}}" />
     <meta name="twitter:headline" content="{{headline}}" />
+
+    <meta property="fc:frame" content="vNext" />
+
+    {% if frame %}
+      <meta property="fc:frame:image" content="{{frame[0]}}" />
+      <meta property="fc:frame:button:1" content="{{'Prev' if frame[1] else 'Home'}}" />
+      {% if frame[1] %}
+        <meta property="fc:frame:button:1:target" content="{{ article_url ~ '?page=' ~ frame[1] }}" />
+      {% else %}
+        <meta property="fc:frame:button:1:target" content="{{ app_url }}" />
+      {% endif %}
+      {% if frame[2] %}
+        <meta property="fc:frame:button:2" content="Continue" />
+        <meta property="fc:frame:button:2:target" content="{{ article_url ~ '?page=' ~ frame[2] }}" />
+      {% endif %}
+    {% else %}
+      <meta property="fc:frame:image" content="{{app_url}}/static/logo.png" />
+    {% endif %}
   </head>
 
   <body>
     <main>
       <header>
-        <a href="/"><img class="logo" src="/static/white-logo.svg" width="100px" alt="The Farcaster Times Logo"/></a>
-        <a href="/"><img class="logo-text" src="/static/purple-text-logo.svg" height="300px" alt="The Farcaster Times Logo"/></a>
+        <a href="/"><img class="logo" src="/static/white-logo.svg" width="100px" alt="Farcaster Times Logo"/></a>
+        <a href="/"><img class="logo-text" src="/static/purple-text-logo.svg" height="300px" alt="Farcaster Times Logo"/></a>
         <div class="article-search-form">
             <form>
                 <label for="channel">Channel/Username:</label>

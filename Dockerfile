@@ -7,4 +7,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["waitress-serve", "--call", "app:create_app"]
+CMD ["gunicorn", "-w", "1", "app:create_app()", "--reload"]

@@ -20,7 +20,7 @@ def get_source(channel_or_username, year, month, day, type):
 
     if type == "username":
         return (
-            channel_or_username,
+            f"@{channel_or_username}",
             f"https://warpcast.com/{channel_or_username}",
             time_frame,
         )

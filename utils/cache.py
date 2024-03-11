@@ -27,7 +27,7 @@ def store_cached_article(hash, article):
 
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO articles (hash, article) VALUES (%s, %s)",
+        "INSERT INTO articles (hash, article) VALUES (%s, %s) ON CONFLICT(hash) DO UPDATE SET article = EXCLUDED.article",
         (hash, json.dumps(article)),
     )
     conn.commit()

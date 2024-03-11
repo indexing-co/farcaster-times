@@ -16,7 +16,7 @@ def normalize_channel(channel=""):
     # Check if input is a username (starts with '@')
     if "@" in channel:
         username = channel.strip("@")
-        return username, None, 'username'  # No parent_url needed for usernames
+        return username, None, "username"  # No parent_url needed for usernames
 
     # Handling channels, with backward compatibility for legacy channels
     elif "/" in channel:
@@ -31,7 +31,8 @@ def normalize_channel(channel=""):
         else f"https://warpcast.com/~/channel/{channel}"
     )
 
-    return channel, parent_url, 'channel'
+    return channel, parent_url, "channel"
+
 
 def generate_article_hash(channel_or_username=None, start_date=None, end_date=None):
     m = hashlib.sha256()
@@ -41,9 +42,10 @@ def generate_article_hash(channel_or_username=None, start_date=None, end_date=No
 
     return m.hexdigest()
 
-def truncate_content(content, word_limit=50):
-    words = content.split(' ')
+
+def truncate_content(content, word_limit=50, offset=0):
+    words = content.split(" ")
     if len(words) <= word_limit:
         return content
-    truncated = ' '.join(words[:word_limit])
+    truncated = " ".join(words[offset : (offset + word_limit)])
     return f"{truncated}..."
