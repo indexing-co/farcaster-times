@@ -3,6 +3,7 @@ from dateutil.relativedelta import relativedelta
 from dotenv import load_dotenv
 import sentry_sdk
 from flask import Flask, render_template, request, redirect, url_for
+import json
 import os
 
 load_dotenv()
@@ -42,6 +43,21 @@ def gcp_health():
 def home():
     channel = request.args.get("channel")
     selected_date = request.args.get("selected_date")
+
+    try:
+        channel_or_username = request.json["untrustedData"]["inputText"]
+        if channel_or_username:
+            return redirect(
+                url_for(
+                    "article_by_month",
+                    channel_or_username=channel_or_username,
+                    year=2024,
+                    month=3,  # TODO: make these fields dynamic
+                ),
+                code=302,
+            )
+    except:
+        pass
 
     if not selected_date:
         today = datetime.today()
