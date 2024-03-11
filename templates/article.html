@@ -33,6 +33,9 @@
         <h1><i>{{headline}}</i></h1>
         {% if not error %}
         <p>{{subheading}}</p>
+        {% if image_url %}
+        <img class="article-image" src="{{image_url}}" alt="Article Image" />
+        {% endif %}
         <p>Insights from <a href="{{source[1]}}" target="_blank">{{source[0]}}</a> - {{source[2]}}</p>
         {% endif %}
       </section>

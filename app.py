@@ -134,6 +134,7 @@ def article_by_day(channel_or_username, year, month, day):
                 if article.get("content")
                 else "No article found for this date range."
             ),
+            image_url=article.get("image_url", ""),
             channel_or_username=channel,
             source=get_source(channel, year, month, day, type),
             error=False,  # Indicates successful article retrieval
@@ -148,6 +149,7 @@ def article_by_day(channel_or_username, year, month, day):
             subheading="",
             summary="",
             content="An error occurred while trying to generate the article. Please try again later.",
+            image_url="",
             channel_or_username=channel,
             source=["", "#", ""],
             error=True,  # Indicates an error occurred
@@ -179,6 +181,7 @@ def article_by_month(channel_or_username, year, month):
                 if article.get("content")
                 else "No article found for this month."
             ),
+            image_url=article.get("image_url", ""),
             channel_or_username=channel,
             source=get_source(channel, year, month, 0, type),
             error=False,  # Indicates successful article retrieval
@@ -193,6 +196,7 @@ def article_by_month(channel_or_username, year, month):
             subheading="",
             summary="",
             content="An error occurred while trying to generate the article. Please try again later.",
+            image_url="",
             channel_or_username=channel,
             source=["", "#", ""],  # Adjust as needed for month-based source
             error=True,  # Indicates an error occurred
