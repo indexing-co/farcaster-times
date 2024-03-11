@@ -1,4 +1,5 @@
 import json
+import os
 from openai import OpenAI
 
 from .cache import get_cached_article, store_cached_article
@@ -9,16 +10,14 @@ from .upload_file import upload_to_pinata
 
 client = OpenAI()
 
+
 def generate_dalle_image(summary):
     response = client.images.generate(
-        model="dall-e-3",
-        prompt=summary,
-        size="1024x1024",
-        quality="standard",
-        n=1
+        model="dall-e-3", prompt=summary, size="1024x1024", quality="standard", n=1
     )
     image_url = response.data[0].url
     return image_url
+
 
 def generate_article(
     channel_or_username=None, start_date=None, end_date=None, type=None
@@ -96,10 +95,12 @@ The content should be formatted as a string with markdown. Link to quoted posts 
 
     article = json.loads(response.choices[0].message.content)
 
-    summary = article['summary']
-    dalle_url = generate_dalle_image(summary)
-    ipfs_hash = upload_to_pinata(dalle_url)
-    article['image_url'] = f"https://ipfs.io/ipfs/{ipfs_hash}"
+    summary = article["summary"]
+
+    if os.getenv("PINATA_API_KEY"):
+        dalle_url = generate_dalle_image(summary)
+        ipfs_hash = upload_to_pinata(dalle_url)
+        article["image_url"] = f"https://ipfs.io/ipfs/{ipfs_hash}"
 
     store_cached_article(hash=article_hash, article=article)
 

@@ -11,7 +11,7 @@ from .content import get_clean_content
 DOWNSCALE_RATIO = 0.7
 FONT_SIZE = 60 * DOWNSCALE_RATIO
 CHARS_PER_LINE = 60
-WORDS_PER_PAGE = 120
+WORDS_PER_PAGE = 100
 PURPLE = (138, 99, 210)
 CANVAS_SIZE = tuple(int(v) for v in [1910 * DOWNSCALE_RATIO, 1000 * DOWNSCALE_RATIO])
 
@@ -32,17 +32,22 @@ def get_all_frame_pages(article, source):
 
     for section in content.split("!heading:"):
         lines = re.sub(".$", "", section).split("\n")
-        heading = lines[0]
-        sentences = " ".join([v for v in lines[1:] if v]).split(".")
-        word_count = len(heading.split(" "))
+        if len(lines[0].split(" ")) > 20:
+            lines = [None] + lines
+            heading = None
+        else:
+            heading = "\n".join(wrap(lines[0], CHARS_PER_LINE / 1.3))
+        sentences = " ".join([v for v in lines[1:] if v]).split(". ")
+        word_count = len(heading.split(" ")) if heading else 0
         page_words = []
         for sentence in sentences:
             sentence_words = sentence.strip().split(" ")
             if word_count + len(sentence_words) >= WORDS_PER_PAGE:
                 page_content = "\n".join(wrap(" ".join(page_words), CHARS_PER_LINE))
                 pages.append((heading, page_content))
+                page_words = []
+                word_count = 0
                 heading = None
-                break
             sentence_words[-1] = f"{sentence_words[-1]}."
             page_words += sentence_words
             word_count += len(sentence_words)
@@ -51,7 +56,7 @@ def get_all_frame_pages(article, source):
             page_content = "\n".join(wrap(" ".join(page_words), CHARS_PER_LINE))
             pages.append((heading, page_content))
 
-    return [p for p in pages if p[0] and [1] != "..."]
+    return [p for p in pages if p[0] or len(p[1]) > 25]
 
 
 def article_to_frame(article, source, page=0):

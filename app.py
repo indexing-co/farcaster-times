@@ -25,12 +25,15 @@ if sentry_key:
 
 app = Flask(__name__)
 
+
 def create_app():
     app.run(host="0.0.0.0", port=os.environ.get("PORT", 8080))
+
 
 @app.get("/_ah/health")
 def gcp_health():
     return "ok"
+
 
 @app.route(
     "/",
@@ -48,7 +51,7 @@ def home():
                     "article_by_month",
                     channel_or_username=channel_or_username,
                     year=2024,
-                    month=3,  # TODO: make these fields dynamic
+                    month=2,  # TODO: make these fields dynamic
                 ),
                 code=302,
             )
@@ -123,6 +126,7 @@ def home():
         )
     )
 
+
 @app.route(
     "/articles/<string:channel_or_username>/<int:year>/<int:month>/<int:day>",
     methods=["GET", "POST"],
@@ -130,12 +134,14 @@ def home():
 def article_by_day(channel_or_username, year, month, day):
     return render_article_template(channel_or_username, year, month, day)
 
+
 @app.route(
     "/articles/<string:channel_or_username>/<int:year>/<int:month>",
     methods=["GET", "POST"],
 )
 def article_by_month(channel_or_username, year, month):
     return render_article_template(channel_or_username, year, month, None)
+
 
 def render_article_template(channel_or_username, year, month, day):
     channel, _, type = normalize_channel(channel=channel_or_username)
@@ -183,6 +189,7 @@ def render_article_template(channel_or_username, year, month, day):
     except Exception as e:
         print(f"Error generating article: {e}")
         return render_error_template(article_url, channel)
+
 
 def render_error_template(article_url, channel):
     return render_template(
