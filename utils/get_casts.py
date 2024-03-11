@@ -9,7 +9,7 @@ client = bigquery.Client()
 
 def get_casts_by_channel(parent_url=None, start_date=None, end_date=None):
     if not parent_url:
-        raise "No params provided"
+        raise ValueError("No params provided")
 
     sql = generate_channel_casts_sql(
         parent_url=parent_url, start_date=start_date, end_date=end_date
@@ -28,7 +28,7 @@ def get_casts_by_channel(parent_url=None, start_date=None, end_date=None):
 
 def generate_channel_casts_sql(parent_url=None, start_date=None, end_date=None):
     if not parent_url:
-        raise "Missing params for generating SQL"
+        raise ValueError("Missing params for generating SQL")
 
     """
     TODO: reconfigure this a bit to have better limits :thinking:
