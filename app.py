@@ -15,7 +15,6 @@ from utils.get_casts import get_top_casts_by_username
 from utils.generate_article import generate_article
 from utils.lookups import normalize_channel, truncate_content
 
-
 sentry_key = os.environ.get("SENTRY_DSN")
 if sentry_key:
     sentry_sdk.init(
@@ -26,15 +25,12 @@ if sentry_key:
 
 app = Flask(__name__)
 
-
 def create_app():
     app.run(host="0.0.0.0", port=os.environ.get("PORT", 8080))
-
 
 @app.get("/_ah/health")
 def gcp_health():
     return "ok"
-
 
 @app.route(
     "/",
@@ -127,7 +123,6 @@ def home():
         )
     )
 
-
 @app.route(
     "/articles/<string:channel_or_username>/<int:year>/<int:month>/<int:day>",
     methods=["GET", "POST"],
@@ -135,14 +130,12 @@ def home():
 def article_by_day(channel_or_username, year, month, day):
     return render_article_template(channel_or_username, year, month, day)
 
-
 @app.route(
     "/articles/<string:channel_or_username>/<int:year>/<int:month>",
     methods=["GET", "POST"],
 )
 def article_by_month(channel_or_username, year, month):
     return render_article_template(channel_or_username, year, month, None)
-
 
 def render_article_template(channel_or_username, year, month, day):
     channel, _, type = normalize_channel(channel=channel_or_username)
@@ -180,6 +173,7 @@ def render_article_template(channel_or_username, year, month, day):
                 if article.get("content")
                 else "No article found for this date range."
             ),
+            image_url=article.get("image_url", ""),
             channel_or_username=channel,
             source=source,
             frame=frame,
@@ -190,7 +184,6 @@ def render_article_template(channel_or_username, year, month, day):
         print(f"Error generating article: {e}")
         return render_error_template(article_url, channel)
 
-
 def render_error_template(article_url, channel):
     return render_template(
         "article.html",
@@ -200,6 +193,7 @@ def render_error_template(article_url, channel):
         subheading="",
         summary="",
         content="An error occurred while trying to generate the article. Please try again later.",
+        image_url=None,
         channel_or_username=channel,
         frame=generate_error_frame(),
         source=["", "#", ""],  # Adjust as needed for month-based source

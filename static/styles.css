@@ -72,6 +72,13 @@ hr {
   border-radius: 4px;
 }
 
+.article-image {
+  max-width: 800px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
 @media screen and (min-width: 769px) {
   header {
     height: 100px;
@@ -109,6 +116,10 @@ hr {
 
   .logo-text {
     display: none;
+  }
+
+  .article-image {
+    max-width: 100%;
   }
 }
 
