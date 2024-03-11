@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from dotenv import load_dotenv
+import sentry_sdk
 from flask import Flask, render_template, request, redirect, url_for
 import os
 
@@ -12,6 +13,15 @@ from utils.frames import article_to_frame, generate_error_frame
 from utils.get_casts import get_top_casts_by_username
 from utils.generate_article import generate_article
 from utils.lookups import normalize_channel, truncate_content
+
+
+sentry_key = os.environ.get("SENTRY_DSN")
+if sentry_key:
+    sentry_sdk.init(
+        dsn=sentry_key,
+        traces_sample_rate=1.0,
+        profiles_sample_rate=1.0,
+    )
 
 app = Flask(__name__)
 
